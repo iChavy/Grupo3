@@ -9,20 +9,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 ```
 
-## R Markdown
-
-
-Evaluar los modelos y “arreglarlos” en caso de que tengan algún problema con las condiciones que deben cumplir.
-Evaluar el poder predictivo del modelo en datos no utilizados para construirlo (o utilizando validación cruzada).
-
-##### 1. Definir la semilla a utilizar, que corresponde a los últimos cuatro dígitos del RUN (sin considerar el dígito verificador) del integrante de menor edad del equipo.
+#### 1. Definir la semilla a utilizar, que corresponde a los últimos cuatro dígitos del RUN (sin considerar el dígito verificador) del integrante de menor edad del equipo.
 ```{r }
 # cargar datos
 datos = read.csv2("EP11 Datos.csv")
 set.seed(5900)
 ```
 
-##### 2. Seleccionar una muestra de 50 mujeres (si la semilla es un número par) o 50 hombres (si la semilla es impar).
+#### 2. Seleccionar una muestra de 50 mujeres (si la semilla es un número par) o 50 hombres (si la semilla es impar).
 ```{r }
 # Se filtran los datos para que sean de género femenino
 mujeres = datos[(datos$Gender == 0),]
@@ -30,13 +24,13 @@ mujeres = datos[(datos$Gender == 0),]
 mujeres_c = sample_n(mujeres,50)
 ```
 
-##### 3. Seleccionar de forma aleatoria ocho posibles variables predictoras.
+#### 3. Seleccionar de forma aleatoria ocho posibles variables predictoras.
 ```{r }
 # Selección de 8 variables aleatorias
 mujeres_r = sample(mujeres_c,8)
 ```
 
-##### 4. Seleccionar, de las otras variables, una que el equipo considere que podría ser útil para predecir la variable Peso, justificando bien esta selección. 
+#### 4. Seleccionar, de las otras variables, una que el equipo considere que podría ser útil para predecir la variable Peso, justificando bien esta selección. 
 
 ```{r}
 # Al dataframe inicial, se le quitan las columnas que fueron seleccionadas aleatoriamente
@@ -48,7 +42,7 @@ cor(datos_2, y = datos_2$Weight)
 ```
 Como la variable que tiene mayor índice de correlación es "Forearm.Girth", se escoge esta para poder predecir la variable "Weight"
 
-##### 5. Usando el entorno R, construir un modelo de regresión lineal simple con el predictor seleccionado en el paso anterior.
+#### 5. Usando el entorno R, construir un modelo de regresión lineal simple con el predictor seleccionado en el paso anterior.
 
 ## Including Plots
 
@@ -61,7 +55,7 @@ summary(modelo)
 plot(modelo)
 ```
 
-##### 6. Usando herramientas para la exploración de modelos del entorno R, buscar entre dos y cinco predictores de entre las variables seleccionadas al azar en el punto 3, para agregar al modelo de regresión lineal simple obtenido en el paso 5.
+#### 6. Usando herramientas para la exploración de modelos del entorno R, buscar entre dos y cinco predictores de entre las variables seleccionadas al azar en el punto 3, para agregar al modelo de regresión lineal simple obtenido en el paso 5.
 
 ```{r}
 # Se calcula la correlación entre la nueva variable y las 8 escogidas al azar.
@@ -100,3 +94,7 @@ print(modelo_2)
 ##### Finalmente, no se siguen añadiendo más variables dado que la correlación cada vez es más alta.
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+##### 7.Evaluar los modelos y “arreglarlos” en caso de que tengan algún problema con las condiciones que deben cumplir.
+
+##### 8.Evaluar el poder predictivo del modelo en datos no utilizados para construirlo (o utilizando validación cruzada).
