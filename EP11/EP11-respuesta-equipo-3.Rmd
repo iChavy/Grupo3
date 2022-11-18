@@ -1,0 +1,107 @@
+---
+title: "ep11"
+date: "15 de noviembre de 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+## R Markdown
+
+
+Evaluar los modelos y “arreglarlos” en caso de que tengan algún problema con las condiciones que deben cumplir.
+Evaluar el poder predictivo del modelo en datos no utilizados para construirlo (o utilizando validación cruzada).
+
+##### 1. Definir la semilla a utilizar, que corresponde a los últimos cuatro dígitos del RUN (sin considerar el dígito verificador) del integrante de menor edad del equipo.
+```{r }
+# cargar datos
+datos = read.csv2("EP11 Datos.csv")
+set.seed(5900)
+```
+
+##### 2. Seleccionar una muestra de 50 mujeres (si la semilla es un número par) o 50 hombres (si la semilla es impar).
+```{r }
+# Se filtran los datos para que sean de género femenino
+mujeres = datos[(datos$Gender == 0),]
+# Se extrae una muestra de 50 mujeres dado que la semilla es par
+mujeres_c = sample_n(mujeres,50)
+```
+
+##### 3. Seleccionar de forma aleatoria ocho posibles variables predictoras.
+```{r }
+# Selección de 8 variables aleatorias
+mujeres_r = sample(mujeres_c,8)
+```
+
+##### 4. Seleccionar, de las otras variables, una que el equipo considere que podría ser útil para predecir la variable Peso, justificando bien esta selección. 
+
+```{r}
+# Al dataframe inicial, se le quitan las columnas que fueron seleccionadas aleatoriamente
+variables <- c("Shoulder.Girth", "Chest.depth", "Biacromial.diameter", "Bicep.Girth", "Hip.Girth", "Waist.Girth", "Bitrochanteric.diameter", "Chest.diameter")
+datos_2 <- mujeres_c[ , !(names(mujeres_c) %in% variables)]
+
+# Se calcula el coeficiente de correlación para cada una de las variables
+cor(datos_2, y = datos_2$Weight)
+```
+Como la variable que tiene mayor índice de correlación es "Forearm.Girth", se escoge esta para poder predecir la variable "Weight"
+
+##### 5. Usando el entorno R, construir un modelo de regresión lineal simple con el predictor seleccionado en el paso anterior.
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+# Se construye el modelo lineal considerando las 50 muestras de las mujeres y todas sus columnas
+modelo = lm(Weight ~ Forearm.Girth, mujeres_c)
+summary(modelo)
+plot(modelo)
+```
+
+##### 6. Usando herramientas para la exploración de modelos del entorno R, buscar entre dos y cinco predictores de entre las variables seleccionadas al azar en el punto 3, para agregar al modelo de regresión lineal simple obtenido en el paso 5.
+
+```{r}
+# Se calcula la correlación entre la nueva variable y las 8 escogidas al azar.
+cor(mujeres_r, y = datos_2$Forearm.Girth)
+```
+```{r}
+# Luego se calcula el AIC
+ocho_variables = colnames(mujeres_r)
+print(add1(modelo, scope = c(ocho_variables)))
+```
+###### El AIC de Hip.Girth es 105.43, pero la correlación con la nueva variable es de 0.7877598, por lo que se descarta. Por otro lado, la correlación de Chest.diameter es 0.4533915 y su AIC 148.51 por lo que se decide añadirla al modelo.
+```{r}
+modelo_2 = modelo
+modelo_2 <- update(modelo_2, . ~ . + Chest.diameter)
+cor(mujeres_r, y = datos_2$Forearm.Girth, z = mujeres_r$Hip.Girth)
+```
+##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recien añadida
+```{r}
+print(add1(modelo_2, scope = c(ocho_variables)))
+```
+##### Como la variable --- posee --- AIC, se selecciona para añadirla al modelo
+```{r}
+modelo_2 <- update(modelo_2, . ~ . + )
+
+```
+
+```{r pressure, echo=FALSE}
+#variables <- lm(Weight ~ ., data = mujeres_r)
+variables <- lm(Weight ~ Shoulder.Girth + Chest.depth, data = mujeres_c)
+
+print(add1(modelo, scope = variables))
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r pressure, echo=FALSE}
+# Hip.girth, Waist.Girth, Chest.diameter
+
+modelo_2 <- update(modelo, . ~ . + Hip.Girth + Waist.Girth + Chest.diameter)
+modelo_2
+plot(modelo_2)
+```
