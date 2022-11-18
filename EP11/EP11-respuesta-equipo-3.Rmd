@@ -76,32 +76,27 @@ print(add1(modelo, scope = c(ocho_variables)))
 ```{r}
 modelo_2 = modelo
 modelo_2 <- update(modelo_2, . ~ . + Chest.diameter)
-cor(mujeres_r, y = datos_2$Forearm.Girth, z = mujeres_r$Hip.Girth)
+print(modelo_2)
 ```
 ##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recien añadida
 ```{r}
 print(add1(modelo_2, scope = c(ocho_variables)))
 ```
-##### Como la variable --- posee --- AIC, se selecciona para añadirla al modelo
+##### Como la variable Bitrochanteric.diameter posee una correlación de 0.5898842 y su AIC es 137.52, se selecciona para añadirla al modelo
 ```{r}
-modelo_2 <- update(modelo_2, . ~ . + )
-
+modelo_2 <- update(modelo_2, . ~ . + Bitrochanteric.diameter)
+print(modelo_2)
 ```
 
-```{r pressure, echo=FALSE}
-#variables <- lm(Weight ~ ., data = mujeres_r)
-variables <- lm(Weight ~ Shoulder.Girth + Chest.depth, data = mujeres_c)
-
-print(add1(modelo, scope = variables))
+##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recien añadida
+```{r}
+print(add1(modelo_2, scope = c(ocho_variables)))
 ```
-
+##### Como la variable Chest.depth posee una correlación de 0.5569083 y su AIC es 127.87, se selecciona para añadirla al modelo
+```{r}
+modelo_2 <- update(modelo_2, . ~ . + Bitrochanteric.diameter)
+print(modelo_2)
+```
+##### Finalmente, no se siguen añadiendo más variables dado que la correlación cada vez es más alta.
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-```{r pressure, echo=FALSE}
-# Hip.girth, Waist.Girth, Chest.diameter
-
-modelo_2 <- update(modelo, . ~ . + Hip.Girth + Waist.Girth + Chest.diameter)
-modelo_2
-plot(modelo_2)
-```
