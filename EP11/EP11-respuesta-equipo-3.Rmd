@@ -173,6 +173,18 @@ cat("- VIF medio: ", mean(vifs), "\n")
 ##### 8.Evaluar el poder predictivo del modelo en datos no utilizados para construirlo (o utilizando validación cruzada).
 ```{r}
 # Se extraen los datos no ocupados en el modelo
-prueba <- datos - 
+prueba = mujeres[-muestra,]
+
+# Calcular error cuadrado promedio para datos de entrenamiento
+mse_entrenamiento = mean(modelo_2$residuals ** 2)
+cat("MSE para el conjunto de entrenamiento: ", mse_entrenamiento, "\n")
+
+# Hacer predicciones para el conjunto de prueba
+predicciones = predict(modelo_2,prueba)
+# calcular error cuadrado promedio para el conjunto de prueba
+error = prueba[["Weight"]] - predicciones
+mse_prueba = mean(error ** 2)
+cat("MSE para el conjunto de entrenamiento: ", mse_prueba, "\n")
 ```
+##### se puede observar una diferencia mayor a 10 entre los errores cuadraticos medios por lo que no se recomienda que este modelo sea generalizable
 
