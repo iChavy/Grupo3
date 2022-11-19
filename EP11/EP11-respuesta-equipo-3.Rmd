@@ -84,7 +84,7 @@ modelo_2 <- update(modelo_2, . ~ . + Bitrochanteric.diameter)
 print(modelo_2)
 ```
 
-##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recien añadida
+##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recién añadida
 ```{r}
 print(add1(modelo_2, scope = c(ocho_variables)))
 ```
@@ -102,19 +102,19 @@ print("Prueba de Durbin-Watson para autocorrelaciones ")
 print("entre errorres: ")
 print(durbinWatsonTest(modelo_2))
 ```
-##### podemos observar un p = 0.982 por lo que podemos asumir que existe independencia
+##### Podemos observar un p = 0.982, por lo que podemos asumir que existe independencia
 ```{r}
 # Comprobar normalidad de los residuos
 print("Prueba de normalidad para los residuos: ")
 print(shapiro.test(modelo_2$residuals))
 ```
-##### podemos observar un p = 0.9876 por lo que podemos asumir que existe normalidad en los residuos
+##### Podemos observar un p = 0.9876, por lo que podemos asumir que existe normalidad en los residuos
 ```{r}
 # Comprobar la homocedasticidad de los residuos
 print("Prueba de homocedasticidad para los residuos:")
 print(ncvTest(modelo_2))
 ```
-##### podemos observar un p = 0.31486 por lo que podemos asumir que el supuesto de homocedasticidad se cumple
+##### Podemos observar un p = 0.31486, por lo que podemos asumir que el supuesto de homocedasticidad se cumple
 ```{r}
 # Comprobar la multicolinealidad
 vifs = vif(modelo_2)
@@ -126,35 +126,35 @@ print(1/vifs)
 cat("- VIF medio: ", mean(vifs), "\n")
 
 ```
-##### Todos los valores de VIF son menores a 10 por lo que no habría preocupacion a primera vista, incluso ocupando un criterio mas exijente de 5 no se ven valores preocupantes
-##### Todas las tolerancias son mayores a 0,4 por lo que no tendriamos problemas
-##### el VIF medio mayor a 1 indica un que se podria presenta un sesgo, por lo que se procedera a eliminar la variable predictivaBitrochanteric.diameter
-##### esto ya que presenta el menor valor de p
+##### Todos los valores de VIF son menores a 10, por lo que no habría preocupación a primera vista, incluso ocupando un criterio mas exijente de 5 no se ven valores preocupantes.
+##### Todas las tolerancias son mayores a 0,4, por lo que no tendriamos problemas
+##### El VIF medio mayor a 1 indica un que se podría presenta un sesgo, por lo que se procederá a eliminar la variable predictivaBitrochanteric.diameter.
+##### Esto ya que presenta el menor valor de p.
 
 ```{r}
 modelo_2 <- update(modelo_2, . ~ . - Bitrochanteric.diameter)
 print(summary(modelo_2))
 ```
-##### una vez hecho esto se procede a reevaluar el cumplimiento de las condiciones
+##### Una vez hecho esto, se procede a reevaluar el cumplimiento de las condiciones.
 ```{r}
 # Comprobar independencia de los residuos
 print("Prueba de Durbin-Watson para autocorrelaciones ")
 print("entre errorres: ")
 print(durbinWatsonTest(modelo_2))
 ```
-##### podemos observar un p = 0.988 por lo que podemos asumir que existe independencia
+##### Podemos observar un p = 0.988, por lo que podemos asumir que existe independencia.
 ```{r}
 # Comprobar normalidad de los residuos
 print("Prueba de normalidad para los residuos: ")
 print(shapiro.test(modelo_2$residuals))
 ```
-##### podemos observar un p = 0.8649 por lo que podemos asumir que existe normalidad en los residuos
+##### Podemos observar un p = 0.8649, por lo tanto podemos asumir que existe normalidad en los residuos.
 ```{r}
 # Comprobar la homocedasticidad de los residuos
 print("Prueba de homocedasticidad para los residuos:")
 print(ncvTest(modelo_2))
 ```
-##### podemos observar un p = 0.79761 por lo que podemos asumir que el supuesto de homocedasticidad se cumple
+##### Podemos observar un p = 0.79761, por lo cual podemos asumir que el supuesto de homocedasticidad se cumple.
 ```{r}
 # Comprobar la multicolinealidad
 vifs = vif(modelo_2)
@@ -166,9 +166,9 @@ print(1/vifs)
 cat("- VIF medio: ", mean(vifs), "\n")
 
 ```
-##### Todos los valores de VIF son menores a 10 por lo que no habría preocupacion a primera vista, incluso ocupando un criterio mas exijente de 5 no se ven valores preocupantes
-##### Todas las tolerancias son mayores a 0,4 por lo que no tendriamos problemas
-##### el VIF medio mayor a 1 indica un que se podria presenta un sesgo pero debido a la alta seguridad de los valores anteriores y al a cercania del valor se decidirá proceder con el modelo actual
+##### Todos los valores de VIF son menores a 10, por lo que no habría preocupación a primera vista, incluso ocupando un criterio mas exijente de 5 no se ven valores preocupantes.
+##### Todas las tolerancias son mayores a 0,4 por lo que no tendríamos problemas.
+##### El VIF medio mayor a 1 indica un que se podría presenta un sesgo pero debido a la alta seguridad de los valores anteriores y a la cercania del valor se decidirá proceder con el modelo actual.
 
 ##### 8.Evaluar el poder predictivo del modelo en datos no utilizados para construirlo (o utilizando validación cruzada).
 ```{r}
@@ -181,10 +181,10 @@ cat("MSE para el conjunto de entrenamiento: ", mse_entrenamiento, "\n")
 
 # Hacer predicciones para el conjunto de prueba
 predicciones = predict(modelo_2,prueba)
-# calcular error cuadrado promedio para el conjunto de prueba
+# Calcular error cuadrado promedio para el conjunto de prueba
 error = prueba[["Weight"]] - predicciones
 mse_prueba = mean(error ** 2)
 cat("MSE para el conjunto de entrenamiento: ", mse_prueba, "\n")
 ```
-##### se puede observar una diferencia mayor a 10 entre los errores cuadraticos medios por lo que no se recomienda que este modelo sea generalizable
+##### se puede observar una diferencia mayor a 10 entre los errores cuadráticos medios, por ende, no se recomienda que este modelo sea generalizable.
 
