@@ -7,6 +7,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library(car)
 ```
 
 #### 1. Definir la semilla a utilizar, que corresponde a los últimos cuatro dígitos del RUN (sin considerar el dígito verificador) del integrante de menor edad del equipo.
@@ -46,7 +47,6 @@ Como la variable que tiene mayor índice de correlación es "Forearm.Girth", se 
 
 ## Including Plots
 
-You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
 # Se construye el modelo lineal considerando las 50 muestras de las mujeres y todas sus columnas
@@ -93,8 +93,39 @@ print(modelo_2)
 ```
 ##### Finalmente, no se siguen añadiendo más variables dado que la correlación cada vez es más alta.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
 ##### 7.Evaluar los modelos y “arreglarlos” en caso de que tengan algún problema con las condiciones que deben cumplir.
+```{r}
+# Comprobar independencia de los residuos
+print("Prueba de Durbin-Watson para autocorrelaciones ")
+print("entre errorres: ")
+print(durbinWatsonTest(modelo_2))
+```
+##### podemos observar un p = 0.982 por lo que podemos asumir que existe independencia
+```{r}
+# Comprobar normalidad de los residuos
+print("Prueba de normalidad para los residuos: ")
+print(shapiro.test(modelo_2$residuals))
+```
+##### podemos observar un p = 0.9876 por lo que podemos asumir que existe normalidad en los residuos
+```{r}
+# Comprobar la homocedasticidad de los residuos
+print("Prueba de homocedasticidad para los residuos:")
+print(ncvTest(modelo_2))
+```
+##### podemos observar un p = 0.31486 por lo que podemos asumir que el supuesto de homocedasticidad se cumple
+```{r}
+# Comprobar la multicolinealidad
+vifs = vif(modelo_2)
+print("Verificar la multicolinealidad: ")
+print("VIFS: ")
+print(vifs) 
+print("Tolerancias :")
+print(1/vifs)
+cat("- VIF medio: ", mean(vifs), "\n")
+
+```
+##### Todos los valores de VIF son menores a 10 por lo que no habría preocupacion a primera vista, incluso ocupando un criterio mas exijente de 5 no se ven valores preocupantes
+##### Todas las tolerancias son mayores a 0,4 por lo que no tendriamos problemas
+##### el VIF medio mayor a 1 indica un que se podria presenta un sesgo
 
 ##### 8.Evaluar el poder predictivo del modelo en datos no utilizados para construirlo (o utilizando validación cruzada).
