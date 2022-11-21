@@ -1,0 +1,105 @@
+---
+title: "EP12"
+date: "21 de noviembre de 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(car)
+```
+
+```{r }
+# cargar datos
+datos = read.csv2("EP12 Datos.csv")
+```
+
+##### Selección de datos
+
+#### 1. El equipo crea la variable IMC (índice de masa corporal) como el peso de una persona (en kilogramos) dividida por el cuadrado de su estatura (en metros).
+#### 2. Si bien esta variable se usa para clasificar a las personas en varias clases de estado nutricional (bajo peso, normal, sobrepeso, obesidad, obesidad mórbida), para efectos de este ejercicio, usaremos dos clases: sobrepeso (IMC ≥ 25,0) y no sobrepeso (IMC < 25,0).
+#### 3. El equipo crea la variable dicotómica EN (estado nutricional) de acuerdo al valor de IMC de cada persona
+```{r }
+peso = datos['Weight']
+altura = datos['Height']/100
+IMC = peso/(altura**2)
+colnames(IMC) <- ('IMC')
+EN = IMC >= 25
+colnames(EN) <- ('EN')
+nuevo_data <- cbind(datos, IMC = IMC)
+nuevo_data <- cbind(nuevo_data, EN = EN)
+```
+
+#### 1. Definir la semilla a utilizar, que corresponde a los últimos cuatro dígitos del RUN (sin considerar el dígito verificador) del integrante de mayor edad del equipo.
+```{r }
+set.seed(7458)
+```
+#### 2. Seleccionar una muestra de 120 mujeres (si la semilla es un número par) o 120 hombres (si la semilla es impar), asegurando que la mitad tenga estado nutricional “sobrepeso” y la otra mitad “no sobrepeso”. Dividir esta muestra en dos conjuntos: los datos de 80 personas (40 con EN “sobrepeso”) para utilizar en la construcción de los modelos y 40 personas (20 con EN “sobrepeso”) para poder evaluarlos.
+lo cambiamos por 60 y 45 respectivamente (105 datos). 60 érsonas (30 con sobrepeso y 30 son sp). 45 personas (30 con sp, 15 sp)
+
+```{r }
+mujeres_sobrepeso = nuevo_data[(nuevo_data$Gender == 0 & nuevo_data$EN == TRUE),]
+mujeres_sin_sp = nuevo_data[(nuevo_data$Gender == 0 & nuevo_data$EN == FALSE),]
+
+n = nrow(nuevo_data)
+muestra_sobrepeso =  sample_n(mujeres_sobrepeso, size = 45, replace = FALSE)
+muestra_sin_sp =  sample_n(mujeres_sin_sp, size = 60, replace = FALSE)
+
+```
+
+```{r }
+muestra1_a_id = sample.int(n = 45, size = 30, replace = FALSE)
+muestra1_b_id = sample.int(n = 60, size = 30, replace = FALSE)
+
+
+muestra1_a = muestra_sobrepeso[muestra1_a_id,]
+muestra1_b = muestra_sin_sp[muestra1_b_id,]
+
+muestra2_a = muestra_sobrepeso[-muestra1_a_id,]
+muestra2_b = muestra_sin_sp[-muestra1_b_id,]
+
+data_mujeres1 <- merge(x = muestra1_a, y = muestra1_b, all = TRUE)
+data_mujeres2 <- merge(x = muestra2_a, y = muestra2_b, all = TRUE)
+
+datos105 <- merge(x = data_mujeres1, y = data_mujeres2, all = TRUE)
+```
+#### 3. Recordar las ocho posibles variables predictoras seleccionadas de forma aleatoria en el ejercicio anterior.
+Shoulder.Girth", "Chest.depth", "Biacromial.diameter", "Bicep.Girth", "Hip.Girth", "Waist.Girth", "Bitrochanteric.diameter", "Chest.diameter"
+```{r }
+## hacer data frame con las 8 variables anteriores
+```
+
+#### 4. Seleccionar, de las otras variables, una que el equipo considere que podría ser útil para predecir la clase EN, justificando bien esta selección.
+```{r}
+# Al dataframe inicial, se le quitan las columnas que fueron seleccionadas aleatoriamente
+variables <- c("Shoulder.Girth", "Chest.depth", "Biacromial.diameter", "Bicep.Girth", "Hip.Girth", "Waist.Girth", "Bitrochanteric.diameter", "Chest.diameter")
+datos_2 <- datos105[ , !(names(datos105) %in% variables)]
+
+# Se calcula el coeficiente de correlación para cada una de las variables
+cor(datos105, y = datos105$EN)
+```
+
+```{r }
+
+```
+
+```{r }
+
+```
+
+```{r }
+
+```
+
+```{r }
+
+```
+ Dividir esta muestra en dos conjuntos: los datos de 80 personas (40 con EN “sobrepeso”) para utilizar en la construcción de los modelos y 40 personas (20 con EN “sobrepeso”) para poder evaluarlos.
+Recordar las ocho posibles variables predictoras seleccionadas de forma aleatoria en el ejercicio anterior.
+Seleccionar, de las otras variables, una que el equipo considere que podría ser útil para predecir la clase EN, justificando bien esta selección.
+Usando el entorno R y paquetes estándares1, construir un modelo de regresión logística con el predictor seleccionado en el paso anterior y utilizando de la muestra obtenida.
+Usando herramientas estándares1 para la exploración de modelos del entorno R, buscar entre dos y cinco predictores de entre las variables seleccionadas al azar, recordadas en el punto 3, para agregar al modelo obtenido en el paso 5.
+Evaluar la confiabilidad de los modelos (i.e. que tengan un buen nivel de ajuste y son generalizables) y “arreglarlos” en caso de que tengan algún problema.
+Usando código estándar1, evaluar el poder predictivo de los modelos con los datos de las 40 personas que no se incluyeron en su construcción en términos de sensibilidad y especificidad.
+
