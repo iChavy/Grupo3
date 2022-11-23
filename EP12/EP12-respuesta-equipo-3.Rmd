@@ -83,7 +83,7 @@ datos105 <- merge(x = data_mujeres1, y = data_mujeres2, all = TRUE)
 nombre_variables = c("Shoulder.Girth", "Chest.depth", "Biacromial.diameter", "Bicep.Girth", "Hip.Girth", "Waist.Girth", "Bitrochanteric.diameter", "Chest.diameter")
 
 # Hacer data frame con las 8 variables anteriores
-data8_variables <- datos105[nombre_variables]
+data8_variables <- data_mujeres1[nombre_variables]
 
 ```
 
@@ -91,17 +91,17 @@ data8_variables <- datos105[nombre_variables]
 ```{r}
 # Al dataframe inicial, se le quitan las columnas que fueron seleccionadas aleatoriamente
 variables <- c("Shoulder.Girth", "Chest.depth", "Biacromial.diameter", "Bicep.Girth", "Hip.Girth", "Waist.Girth", "Bitrochanteric.diameter", "Chest.diameter")
-datos_2 <- datos105[ , !(names(datos105) %in% variables)]
+datos_2 <- data_mujeres1[ , !(names(data_mujeres1) %in% variables)]
 
 # Se calcula el coeficiente de correlación para cada una de las variables
 cor(datos_2, y = datos_2$EN)
 ```
 
-Se selecciona la variable "Weight" cuya relación con la variable En es de 0.7373804
+Se selecciona la variable "Chest.Girth" cuya relación con la variable En es de 0.71765892
 
 #### 5. Usando el entorno R y paquetes estándares, construir un modelo de regresión logística con el predictor seleccionado en el paso anterior y utilizando de la muestra obtenida.
 ```{r }
-modelo <- glm(EN ~ Waist.Girth, family = binomial(link = "logit"), datos105)
+modelo <- glm(EN ~ Chest.Girth, family = binomial(link = "logit"), data_mujeres1)
 ```
 
 #### 6. Usando herramientas estándares para la exploración de modelos del entorno R, buscar entre dos y cinco predictores de entre las variables seleccionadas al azar, recordadas en el punto 3, para agregar al modelo obtenido en el paso 5.
@@ -114,37 +114,101 @@ print(add1(modelo, scope = variables))
 
 ```
 
-###### El menor AIC presente es de la variable Hip.Girth vuyo valor es 45.115, por lo que se decide añadirla al modelo.
+###### El menor AIC presente es de la variable Waist.Girth vuyo valor es 33.124, por lo que se decide añadirla al modelo.
 ```{r}
 modelo_2 = modelo
-modelo_2 <- update(modelo_2, . ~ . + Hip.Girth)
+modelo_2 <- update(modelo_2, . ~ . + Waist.Girth)
 print(modelo_2)
 ```
 ##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recien añadida
 ```{r}
 print(add1(modelo_2, scope = variables))
 ```
-##### La variable Bitrochanteric.diameter posee un AIC de 40.447, el cual es el menor valor. Luego se selecciona para añadirla al modelo
+##### La variable Chest.depth posee un AIC de 33.485, el cual es el menor valor. Luego se selecciona para añadirla al modelo
 ```{r}
-modelo_2 <- update(modelo_2, . ~ . + Bitrochanteric.diameter)
+modelo_2 <- update(modelo_2, . ~ . + Chest.depth)
 print(modelo_2)
 ```
 ##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recién añadida
 ```{r}
 print(add1(modelo_2, scope = variables))
 ```
-##### La variable Chest.depth posee un AIC de 37.842, el cual es el menor valor. Luego se selecciona para añadirla al modelo
+##### La variable Shoulder.Girth posee un AIC de 31.607, el cual es el menor valor. Luego se selecciona para añadirla al modelo
 ```{r}
-modelo_2 <- update(modelo_2, . ~ . + Chest.depth)
+modelo_2 <- update(modelo_2, . ~ . + Shoulder.Girth)
 print(modelo_2)
 ```
 #### 7. Evaluar la confiabilidad de los modelos (i.e. que tengan un buen nivel de ajuste y son generalizables) y “arreglarlos” en caso de que tengan algún problema.
 ```{r }
+# Comprobar independencia de los residuos
+print("Prueba de Durbin-Watson para autocorrelaciones ")
+print("entre errorres: ")
+print(durbinWatsonTest(modelo_2))
+```
+##### Podemos observar un p = 0.312, por lo que podemos asumir que existe independencia entre residuos
+
+```{r}
+# Comprobar la multicolinealidad
+vifs = vif(modelo_2)
+print("Verificar la multicolinealidad: ")
+print("VIFS: ")
+print(vifs) 
+print("Tolerancias :")
+print(1/vifs)
+cat("- VIF medio: ", mean(vifs), "\n")
 
 ```
-#### 8. Usando código estándar1, evaluar el poder predictivo de los modelos con los datos de las 40 personas que no se incluyeron en su construcción en términos de sensibilidad y especificidad.
+##### Todos los valores de VIF son menores a 10, por lo que no habría preocupación a primera vista, pero ocupando un criterio mas exijente de 5 podemos ver 2 valores preocupantes
+##### se puede observar que 2 tolerancias presentan valores menores a 0.4 por lo que se toman como valores preocupantes
+##### El VIF medio mayor a 1 indica un que se podría presenta un sesgo, por lo que se procederá a eliminar las variables Chest.Girth y Shoulder.Girth
+##### Esto ya que presenta el menor valor de p y no cumple las exijencias de toleancia y VIFS.
+
 
 ```{r }
+modelo_2 <- update(modelo_2, . ~ . - Chest.Girth)
+modelo_2 <- update(modelo_2, . ~ . - Shoulder.Girth)
+print(summary(modelo_2))
 
 ```
+#### Volvemos a repetir el proceso con las 2 variables fuera
+```{r }
+# Comprobar independencia de los residuos
+print("Prueba de Durbin-Watson para autocorrelaciones ")
+print("entre errorres: ")
+print(durbinWatsonTest(modelo_2))
+```
+##### Podemos observar un p = 0.868, por lo que podemos asumir que existe independencia entre residuos
 
+```{r}
+# Comprobar la multicolinealidad
+vifs = vif(modelo_2)
+print("Verificar la multicolinealidad: ")
+print("VIFS: ")
+print(vifs) 
+print("Tolerancias :")
+print(1/vifs)
+cat("- VIF medio: ", mean(vifs), "\n")
+
+```
+##### Todos los valores de VIF son menores a 10 e incluso a 5 manteniendo una exijencia alta
+##### las 2 tolerancias son muy superiores a 0.4, cumpliendo la exijencia
+##### El VIF medio es muy similar a 1 por lo que cumple con la exijencia optima
+
+
+#### 8. Usando código estándar1, evaluar el poder predictivo de los modelos con los datos de las 40 personas que no se incluyeron en su construcción en términos de sensibilidad y especificidad.
+```{r}
+# Se extraen los datos no ocupados en el modelo
+prueba = data_mujeres2
+
+# Calcular error cuadrado promedio para datos de entrenamiento
+mse_entrenamiento = mean(modelo_2$residuals ** 2)
+cat("MSE para el conjunto de entrenamiento: ", mse_entrenamiento, "\n")
+
+# Hacer predicciones para el conjunto de prueba
+predicciones = predict(modelo_2,prueba)
+# Calcular error cuadrado promedio para el conjunto de prueba
+error = prueba[["Weight"]] - predicciones
+mse_prueba = mean(error ** 2)
+cat("MSE para el conjunto de entrenamiento: ", mse_prueba, "\n")
+```
+#### Se puede ver una gran diferencia entre los MSE por lo que no se recomienda generalizar este modelo a datos externos.
