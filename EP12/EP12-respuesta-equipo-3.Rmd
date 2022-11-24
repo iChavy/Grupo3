@@ -124,18 +124,18 @@ print(modelo_2)
 ```{r}
 print(add1(modelo_2, scope = variables))
 ```
-##### La variable Chest.depth posee un AIC de 33.485, el cual es el menor valor. Luego se selecciona para añadirla al modelo
+##### La variable Hip.Girth posee un AIC de 32.717, el cual es el menor valor. Luego se selecciona para añadirla al modelo
 ```{r}
-modelo_2 <- update(modelo_2, . ~ . + Chest.depth)
+modelo_2 <- update(modelo_2, . ~ . + Hip.Girth)
 print(modelo_2)
 ```
 ##### Para añadir otra variable, es necesario repetir el paso anterior pero con el nuevo modelo que contiene la variable recién añadida
 ```{r}
 print(add1(modelo_2, scope = variables))
 ```
-##### La variable Shoulder.Girth posee un AIC de 31.607, el cual es el menor valor. Luego se selecciona para añadirla al modelo
+##### La variable Chest.diameter  posee un AIC de 31.653, el cual es el menor valor. Luego se selecciona para añadirla al modelo
 ```{r}
-modelo_2 <- update(modelo_2, . ~ . + Shoulder.Girth)
+modelo_2 <- update(modelo_2, . ~ . + Chest.diameter )
 print(modelo_2)
 ```
 #### 7. Evaluar la confiabilidad de los modelos (i.e. que tengan un buen nivel de ajuste y son generalizables) y “arreglarlos” en caso de que tengan algún problema.
@@ -145,7 +145,7 @@ print("Prueba de Durbin-Watson para autocorrelaciones ")
 print("entre errorres: ")
 print(durbinWatsonTest(modelo_2))
 ```
-##### Podemos observar un p = 0.312 y considerando un alfa = 0.01, se puede asumir que existe independencia entre residuos
+##### Podemos observar un p = 0.618 y considerando un alfa = 0.01, se puede asumir que existe independencia entre residuos ya que p > alfa.
 
 ```{r}
 # Comprobar la multicolinealidad
