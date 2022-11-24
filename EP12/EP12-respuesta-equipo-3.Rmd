@@ -97,18 +97,18 @@ datos_2 <- data_mujeres1[ , !(names(data_mujeres1) %in% variables)]
 cor(datos_2, y = datos_2$EN)
 ```
 
-Se selecciona la variable "Chest.Girth" cuya relación con la variable En es de 0.71765892
+Se selecciona la variable "Chest.Girth" cuya relación con la variable EN es de 0.71765892
 
 #### 5. Usando el entorno R y paquetes estándares, construir un modelo de regresión logística con el predictor seleccionado en el paso anterior y utilizando de la muestra obtenida.
 ```{r }
 modelo <- glm(EN ~ Chest.Girth, family = binomial(link = "logit"), data_mujeres1)
+print(modelo)
 ```
 
 #### 6. Usando herramientas estándares para la exploración de modelos del entorno R, buscar entre dos y cinco predictores de entre las variables seleccionadas al azar, recordadas en el punto 3, para agregar al modelo obtenido en el paso 5.
 ```{r }
 # Luego se calcula el AIC
 ocho_variables = colnames(data8_variables)
-
 
 print(add1(modelo, scope = variables))
 
@@ -145,7 +145,7 @@ print("Prueba de Durbin-Watson para autocorrelaciones ")
 print("entre errorres: ")
 print(durbinWatsonTest(modelo_2))
 ```
-##### Podemos observar un p = 0.312, por lo que podemos asumir que existe independencia entre residuos
+##### Podemos observar un p = 0.312 y considerando un alfa = 0.01, se puede asumir que existe independencia entre residuos
 
 ```{r}
 # Comprobar la multicolinealidad
