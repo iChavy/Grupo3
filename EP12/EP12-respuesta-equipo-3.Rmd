@@ -177,7 +177,7 @@ print("Prueba de Durbin-Watson para autocorrelaciones ")
 print("entre errorres: ")
 print(durbinWatsonTest(modelo_2))
 ```
-##### Podemos observar un p = 0.868, por lo que podemos asumir que existe independencia entre residuos
+##### Podemos observar un p = 0.572, por lo que podemos asumir que existe independencia entre residuos
 
 ```{r}
 # Comprobar la multicolinealidad
