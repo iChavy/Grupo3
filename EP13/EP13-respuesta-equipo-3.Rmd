@@ -1,0 +1,109 @@
+---
+title: "EP13"
+output: html_document
+date: "2022-11-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(leaps)
+```
+
+
+```{r }
+# Cargar datos
+datos = read.csv2("EP13 Datos.csv")
+```
+
+#### Se crea la variable IMC y se crea la variable EN, la cual corresponde a si la persona está o no sobrepeso. Dichas variables se añaden al dataframe.
+```{r }
+peso = datos['Weight']
+altura = datos['Height']/100
+IMC = peso/(altura**2)
+colnames(IMC) <- ('IMC')
+EN = IMC >= 25
+colnames(EN) <- ('EN')
+# Se agregan las columnas IMC y EN a los datos iniciales
+nuevo_data <- cbind(datos, IMC = IMC)
+nuevo_data <- cbind(nuevo_data, EN = EN)
+```
+
+#### 1. Definir la semilla a utilizar, que corresponde a los primeros cinco dígitos del RUN del integrante de mayor edad del equipo.
+```{r }
+# Se Utiliza la semilla 19747 según el run del integrante de mayor edad 
+set.seed(19747)
+```
+
+#### 2. Seleccionar una muestra de 100 personas, asegurando que la mitad tenga estado nutricional “sobrepeso” y la otra mitad “no sobrepeso”.
+```{r}
+# Se crean dos dataframes uno con las personas con sobrepeso y el otro con las personas sin sobrepeso
+personas_sobrepeso = nuevo_data[(nuevo_data$EN == TRUE),]
+personas_sin_sp = nuevo_data[(nuevo_data$EN == FALSE),]
+
+# Se calcula el tamaño de cada dataframe
+n = nrow(personas_sobrepeso)
+m = nrow(personas_sin_sp)
+
+# Selección de 50 ids aleatorios para personas con y sin sobrepeso respectivamente
+muestra50_sp_id = sample.int(n = n, size = 50, replace = FALSE)
+muestra50_sin_sp_id = sample.int(n = m, size = 50, replace = FALSE)
+
+# Selección de las muestras
+muestra50_sp = personas_sobrepeso[muestra50_sp_id,]
+muestra50_sin_sp = personas_sin_sp[muestra50_sin_sp_id,]
+
+# Se juntan los dataframes resultantes
+data100 <- merge(x = muestra50_sp, y = muestra50_sin_sp, all = TRUE)
+```
+
+#### 3. Usando las herramientas del paquete leaps, realizar una búsqueda exhaustiva para seleccionar entre dos y ocho predictores que ayuden a estimar la variable Peso (Weight), obviamente sin considerar las nuevas variables IMC ni EN, y luego utilizar las funciones del paquete caret para construir un modelo de regresión lineal múltiple con los predictores escogidos y evaluarlo usando bootstrapping.
+
+```{r}
+Best_Subset <-
+    regsubsets(Weight~.,
+               data =data100,
+               nbest = 1,      # 1 best model for each number of predictors
+               nvmax = NULL,    # NULL for no limit on number of variables
+               force.in = NULL, force.out = NULL,
+               method = "exhaustive")
+summary_best_subset <- summary(Best_Subset)
+as.data.frame(summary_best_subset$outmat)
+
+which.max(summary_best_subset$adjr2)
+
+```
+
+```{r}
+summary_best_subset$which[9,]
+```
+Los predictores son Chest.depth, Waist.Girth, Gender, Biacromial.diameter, Biiliac.diameter, Hip.Girth y Height
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+
+
+
