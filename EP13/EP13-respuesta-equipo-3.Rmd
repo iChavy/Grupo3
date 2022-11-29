@@ -7,6 +7,10 @@ date: "2022-11-28"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(leaps)
+library(caret)
+
+library(randomForest)
+
 ```
 
 
@@ -36,6 +40,8 @@ set.seed(19747)
 
 #### 2. Seleccionar una muestra de 100 personas, asegurando que la mitad tenga estado nutricional “sobrepeso” y la otra mitad “no sobrepeso”.
 ```{r}
+set.seed(19747)
+
 # Se crean dos dataframes uno con las personas con sobrepeso y el otro con las personas sin sobrepeso
 personas_sobrepeso = nuevo_data[(nuevo_data$EN == TRUE),]
 personas_sin_sp = nuevo_data[(nuevo_data$EN == FALSE),]
@@ -63,27 +69,58 @@ Best_Subset <-
     regsubsets(Weight~.,
                data =data100,
                nbest = 1,      # 1 best model for each number of predictors
-               nvmax = NULL,    # NULL for no limit on number of variables
+               nvmax = 8,    # NULL for no limit on number of variables
                force.in = NULL, force.out = NULL,
                method = "exhaustive")
 summary_best_subset <- summary(Best_Subset)
 as.data.frame(summary_best_subset$outmat)
+```
+
+```{r}
+set.seed(19747)
 
 which.max(summary_best_subset$adjr2)
-
 ```
 
 ```{r}
-summary_best_subset$which[9,]
+summary_best_subset$which[8,]
 ```
-Los predictores son Chest.depth, Waist.Girth, Gender, Biacromial.diameter, Biiliac.diameter, Hip.Girth y Height
+Los predictores son Chest.depth, Ankle.Minimum.Girth, Chest.diameter, Navel.Girth, Wrist.Minimum.Girth,  Hip.Girth, y Height
+
+# Construcción del modelo de regresión lineal múltiple con los predictores escogidos y evaluación usando bootstrapping.
 ```{r}
+# Fórmula
+formula = Weight ~ Chest.depth + Ankle.Minimum.Girth + Chest.diameter + Navel.Girth + Wrist.Minimum.Girth +  Hip.Girth + Height
+
+# Define training control
+train.control <- trainControl(method = "boot", number = 100)
+# Train the model
+modelo_regresion_m <- train(formula, data = data100, method = "glm",
+               trControl = train.control)
+# Summarize the results
+print(modelo_regresion_m)
+
+```
+CONCLUIR Y VER LO DE ROC
+
+#### 4. Haciendo un poco de investigación sobre el paquete caret, en particular cómo hacer Recursive Feature Elimination (RFE), construir un modelo de regresión lineal múltiple para predecir la variable IMC que incluya entre 10 y 20 predictores, seleccionando el conjunto de variables que maximice R2 y que use cinco repeticiones de validación cruzada de cinco pliegues para evitar el sobreajuste (obviamente no se debe considerar las variables Peso, Estatura ni estado nutricional –Weight, Height, EN respectivamente).
+```{r}
+
+
+ctrl <- rfeControl(functions = lmFuncs,
+                   repeats = 5,
+                   number = 5,
+                   verbose = FALSE)
+
+lmProfile <- rfe(IMC ~ ., data = data100,
+                sizes = c(10:20),
+                 rfeControl = ctrl)
+
+lmProfile
 ```
 
 ```{r}
-```
-
-```{r}
+predictors(lmProfile)
 ```
 
 ```{r}
