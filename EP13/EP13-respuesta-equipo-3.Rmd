@@ -7,8 +7,10 @@ date: "2022-11-28"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(leaps)
+library(ggplot2)
 library(caret)
-
+library(dplyr)
+library(car)
 library(randomForest)
 
 ```
@@ -95,6 +97,7 @@ formula = Weight ~ Chest.depth + Ankle.Minimum.Girth + Chest.diameter + Navel.Gi
 # Define training control
 train.control <- trainControl(method = "boot", number = 100)
 # Train the model
+set.seed(19747)
 modelo_regresion_m <- train(formula, data = data100, method = "glm",
                trControl = train.control)
 # Summarize the results
@@ -106,41 +109,84 @@ CONCLUIR Y VER LO DE ROC
 #### 4. Haciendo un poco de investigación sobre el paquete caret, en particular cómo hacer Recursive Feature Elimination (RFE), construir un modelo de regresión lineal múltiple para predecir la variable IMC que incluya entre 10 y 20 predictores, seleccionando el conjunto de variables que maximice R2 y que use cinco repeticiones de validación cruzada de cinco pliegues para evitar el sobreajuste (obviamente no se debe considerar las variables Peso, Estatura ni estado nutricional –Weight, Height, EN respectivamente).
 ```{r}
 
-
 ctrl <- rfeControl(functions = lmFuncs,
                    repeats = 5,
                    number = 5,
                    verbose = FALSE)
 
+set.seed(19747)
 lmProfile <- rfe(IMC ~ ., data = data100,
                 sizes = c(10:20),
-                 rfeControl = ctrl)
+                 rfeControl = ctrl,
+                metric = c("Rsquared"),
+                maximize = TRUE)
 
 lmProfile
 ```
 
 ```{r}
+# Print predictors
 predictors(lmProfile)
 ```
 
 ```{r}
+#
+# Fórmula
+formula = Weight ~ Knees.diameter + Gender + Wrists.diameter + Ankles.diameter + Wrist.Minimum.Girth +  Elbows.diameter + Ankle.Minimum.Girth + Chest.depth + Calf.Maximum.Girth + Knee.Girth + Forearm.Girth
+
+# Define training control
+train.control <- trainControl(method = "cv", number = 5, savePredictions = TRUE)
+# Train the model
+modelo_regresion_r <- train(formula, data = data100, method = "glm",
+               trControl = train.control)
+# Summarize the results
+print(modelo_regresion_r)
+```
+#### 5. Usando RFE, construir un modelo de regresión logística múltiple para la variable EN que incluya el conjunto, de entre dos y seis, predictores que entregue la mejor curva ROC y que utilice validación cruzada dejando uno fuera para evitar el sobreajuste (obviamente no se debe considerar las variables Peso, Estatura –Weight y Height respectivamente– ni IMC).
+```{r}
+ctrl <- rfeControl(functions = caretFuncs,
+                   repeats = 1,
+                   number = 1,
+                   verbose = FALSE)
+
+set.seed(19747)
+lmProfile <- rfe(IMC ~ ., data = data100,
+                sizes = c(10:20),
+                 rfeControl = ctrl,
+                maximize = TRUE)
+
+lmProfile
 ```
 
 ```{r}
 ```
 
+#### 6. Pronunciarse sobre la confiabilidad y el poder predictivo de los modelos obtenidos.
+#### Empezaremos con el modelo de la pregunta 4
+
+# Comprobar independencia de los residuos
 ```{r}
+# Evaluar el modelo
+
+cat("Evaluacion del modelo basada en validacién cruzada:\n")
+matriz <- confusionMatrix(modelo_regresion_r$pred$pred, modelo_regresion_r$pred$obs)
+print (matriz)
 ```
+##### Podemos observar un p = 0.572, por lo que podemos asumir que existe independencia entre residuos
 
 ```{r}
+# Comprobar la multicolinealidad
+vifs = vif(modelo_regresion_r)
+print("Verificar la multicolinealidad: ")
+print("VIFS: ")
+print(vifs) 
+print("Tolerancias :")
+print(1/vifs)
+cat("- VIF medio: ", mean(vifs), "\n")
+
 ```
-
-```{r}
-```
-
-```{r}
-```
-
-
+##### Todos los valores de VIF son menores a 10 e incluso a 5 manteniendo una exijencia alta
+##### las 2 tolerancias son muy superiores a 0.4, cumpliendo la exijencia
+##### El VIF medio es muy similar a 1 por lo que cumple con la exijencia optima
 
 
